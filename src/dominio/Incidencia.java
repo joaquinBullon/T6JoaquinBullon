@@ -237,6 +237,10 @@ public class Incidencia implements Comparable<Incidencia>, Serializable{
 		this.fechaEliminacionTexto = fechaEliminacion;
 	}
 
+	public String getFechaEliminacionTexto() {
+		return fechaEliminacionTexto;
+	}
+
 	/**
 	 * Devuelve la causa de eliminacion de la incidencia.
 	 * @return {@link String} - causa de eliminacion actual.

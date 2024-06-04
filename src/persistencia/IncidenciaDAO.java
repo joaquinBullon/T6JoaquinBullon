@@ -77,13 +77,13 @@ public class IncidenciaDAO {
 					
 					String codigo = rs.getString("Codigo");
 					encontrada.setCodigo(codigo);
-					String estado = rs.getString("Estado");
 					encontrada.setEstado(Estado.PENDIENTE);
 					int puesto = rs.getInt("Puesto");
 					encontrada.setNumPuesto(puesto);
 					String problema = rs.getString("Problema");
 					encontrada.setProblema(problema);
 					
+					return encontrada;
 				}
 
 			
@@ -92,7 +92,7 @@ public class IncidenciaDAO {
 			e.getSQLState();
 			e.getErrorCode();
 		}
-			return encontrada;
+			return null;
 		}
 		/**
 		 * Metodo que busca una incidencia eliminada
@@ -218,7 +218,7 @@ public class IncidenciaDAO {
 					sentencia.setString(2, incidencia.getEstado().toString());
 					sentencia.setInt(3, incidencia.getNumPuesto());
 					sentencia.setString(4, incidencia.getProblema());
-					sentencia.setString(5, incidencia.getFechaResolucionTexto());
+					sentencia.setString(5, incidencia.getFechaEliminacionTexto());
 					sentencia.setString(6, incidencia.getCausaEliminacion());
 					sentencia.executeUpdate();
 				} catch (SQLException e) {
@@ -324,7 +324,7 @@ public class IncidenciaDAO {
 		 */
 		public List<Incidencia> listarIncidenciasPendientes(){
 			Connection con = conectar();
-			String sql = "Select * FROM pendientes";
+			String sql = "SELECT * FROM pendientes";
 			Incidencia nueva = new Incidencia();
 			List<Incidencia> lista = new ArrayList<>();
 			try(PreparedStatement sentencia = con.prepareStatement(sql);
@@ -354,10 +354,10 @@ public class IncidenciaDAO {
 		 * @return Lista resueltas
 		 */
 		public List<Incidencia> listarIncidenciasResueltas(){
-			final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			
 			Connection con = conectar();
-			String sql = "Select * FROM resueltas";
+			String sql = "SELECT * FROM resueltas";
 			Incidencia nueva = new Incidencia();
 			List<Incidencia> lista = new ArrayList<>();
 			try(PreparedStatement sentencia = con.prepareStatement(sql);
@@ -392,10 +392,10 @@ public class IncidenciaDAO {
 		 * @return Lista eliminadas
 		 */
 		public List<Incidencia> listarIncidenciasEliminadas(){
-			final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			
 			Connection con = conectar();
-			String sql = "Select * FROM eliminadas";
+			String sql = "SELECT * FROM eliminadas";
 			Incidencia nueva = new Incidencia();
 			List<Incidencia> lista = new ArrayList<>();
 			try(PreparedStatement sentencia = con.prepareStatement(sql);
