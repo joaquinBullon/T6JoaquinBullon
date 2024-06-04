@@ -115,7 +115,6 @@ public class IncidenciaDAO {
 					
 					String codigo = rs.getString("Codigo");
 					encontrada.setCodigo(codigo);
-					String estado = rs.getString("Estado");
 					encontrada.setEstado(Estado.ELIMINADA);
 					int puesto = rs.getInt("Puesto");
 					encontrada.setNumPuesto(puesto);
@@ -123,6 +122,9 @@ public class IncidenciaDAO {
 					encontrada.setProblema(problema);
 					String fecha = rs.getString("Fechadeeliminacion");
 					String causa = rs.getString("Causadeeliminacion");
+					encontrada.setCausaEliminacion(causa);
+					
+					return encontrada;
 				}
 
 			
@@ -131,7 +133,7 @@ public class IncidenciaDAO {
 			e.getSQLState();
 			e.getErrorCode();
 		}
-			return encontrada;
+			return null;
 		}
 		/**
 		 * Metodo que busca una incidencia resuelta
@@ -142,7 +144,7 @@ public class IncidenciaDAO {
 			Connection con = conectar();
 			Incidencia encontrada = new Incidencia();
 			int numero=0;
-			String sql = "SELECT * FROM eliminadas WHERE Codigo = ?";
+			String sql = "SELECT * FROM resueltas WHERE Codigo = ?";
 			
 		try(PreparedStatement sentencia = con.prepareStatement(sql)) {
 			
@@ -154,14 +156,16 @@ public class IncidenciaDAO {
 					
 					String codigo = rs.getString("Codigo");
 					encontrada.setCodigo(codigo);
-					String estado = rs.getString("Estado");
-					encontrada.setEstado(Estado.ELIMINADA);
+					encontrada.setEstado(Estado.RESUELTA);
 					int puesto = rs.getInt("Puesto");
 					encontrada.setNumPuesto(puesto);
 					String problema = rs.getString("Problema");
 					encontrada.setProblema(problema);
 					String fecha = rs.getString("Fecharesolucion");
 					String resolucion = rs.getString("Resolucion");
+					encontrada.setResolucion(resolucion);
+					
+					return encontrada;
 				}
 
 			
@@ -170,7 +174,7 @@ public class IncidenciaDAO {
 			e.getSQLState();
 			e.getErrorCode();
 		}
-			return encontrada;
+			return null;
 		}
 		/**
 		 * Metodo que crea una incidencia en la base de datos
@@ -193,7 +197,7 @@ public class IncidenciaDAO {
 			        System.out.println("Codigo de error: " + e.getErrorCode());
 				}
 			}else if(incidencia.getEstado().toString().equalsIgnoreCase("RESUELTA")){
-				String sql = "INSERT INTO pendientes (Codigo,Estado,Puesto,Problema,Fecharesolucion,Resolucion) VALUES(?,?,?,?,?,?) ";
+				String sql = "INSERT INTO resueltas (Codigo,Estado,Puesto,Problema,Fecharesolucion,Resolucion) VALUES(?,?,?,?,?,?) ";
 				try (PreparedStatement sentencia = con.prepareStatement(sql)){
 					sentencia.setString(1, incidencia.getCodigo());
 					sentencia.setString(2, incidencia.getEstado().toString());
@@ -208,7 +212,7 @@ public class IncidenciaDAO {
 			        System.out.println("Codigo de error: " + e.getErrorCode());
 				}
 			}else if(incidencia.getEstado().toString().toString().equalsIgnoreCase("ELIMINADA")){
-				String sql = "INSERT INTO pendientes (Codigo,Estado,Puesto,Problema,Fechadeeliminacion,Causadeeliminacion) VALUES(?,?,?,?,?,?) ";
+				String sql = "INSERT INTO eliminadas (Codigo,Estado,Puesto,Problema,Fechadeeliminacion,Causadeeliminacion) VALUES(?,?,?,?,?,?) ";
 				try (PreparedStatement sentencia = con.prepareStatement(sql)){
 					sentencia.setString(1, incidencia.getCodigo());
 					sentencia.setString(2, incidencia.getEstado().toString());
@@ -273,43 +277,37 @@ public class IncidenciaDAO {
 		 */
 		public void update(Incidencia incidencia) {
 			Connection con = conectar();
-			if(incidencia.getEstado().equals("pendientes")) {
-				String sql = "UPDATE pendintes SET Codigo=?,Estado=?,Puesto=?,Problema=?";
+			if(incidencia.getEstado().equals(Estado.PENDIENTE)) {
+				String sql = "UPDATE pendientes SET Puesto=?,Problema=? WHERE Codigo = ?";
 				try(PreparedStatement sentencia = con.prepareStatement(sql)) {
-					sentencia.setString(1, incidencia.getCodigo());
-					sentencia.setString(2, incidencia.getEstado().toString());
-					sentencia.setInt(3, incidencia.getNumPuesto());
-					sentencia.setString(4, incidencia.getProblema());
+					
+					sentencia.setInt(1, incidencia.getNumPuesto());
+					sentencia.setString(2, incidencia.getProblema());
+					sentencia.setString(3, incidencia.getCodigo());
 					sentencia.executeUpdate();			
 				} catch (SQLException e) {
 					e.getMessage();
 					e.getSQLState();
 					e.getErrorCode();
 				}
-			}else if(incidencia.getEstado().equals("resueltas")) {
-				String sql = "UPDATE resueltas SET Codigo=?,Estado=?,Puesto=?,Problema=?,Fecharesolucion=?,Resolucion=?";
+			}else if(incidencia.getEstado().equals(Estado.RESUELTA)) {
+				String sql = "UPDATE resueltas SET Fecharesolucion=?,Resolucion=? WHERE Codigo = ?";
 				try(PreparedStatement sentencia = con.prepareStatement(sql)) {
-					sentencia.setString(1, incidencia.getCodigo());
-					sentencia.setString(2, incidencia.getEstado().toString());
-					sentencia.setInt(3, incidencia.getNumPuesto());
-					sentencia.setString(4, incidencia.getProblema());
-					sentencia.setString(5, incidencia.getFechaResolucionTexto());
-					sentencia.setString(6, incidencia.getResolucion());
+					sentencia.setString(1, incidencia.getFechaResolucionTexto());
+					sentencia.setString(2, incidencia.getResolucion());
+					sentencia.setString(3, incidencia.getCodigo());
 					sentencia.executeUpdate();			
 				} catch (SQLException e) {
 					e.getMessage();
 					e.getSQLState();
 					e.getErrorCode();
 				}
-			}else if(incidencia.getEstado().equals("eliminadas")) {
-				String sql = "UPDATE eliminadas SET Codigo=?,Estado=?,Puesto=?,Problema=?,Fechadeeliminancion=?,Causadeeliminacion=?";
+			}else if(incidencia.getEstado().equals(Estado.ELIMINADA)) {
+				String sql = "UPDATE eliminadas SET Fechadeeliminacion=?,Causadeeliminacion=? WHERE Codigo = ?";
 				try(PreparedStatement sentencia = con.prepareStatement(sql)) {
-					sentencia.setString(1, incidencia.getCodigo());
-					sentencia.setString(2, incidencia.getEstado().toString());
-					sentencia.setInt(3, incidencia.getNumPuesto());
-					sentencia.setString(4, incidencia.getProblema());
-					sentencia.setString(5, incidencia.getFechaResolucionTexto());
-					sentencia.setString(6, incidencia.getCausaEliminacion());
+					sentencia.setString(1, incidencia.getFechaResolucionTexto());
+					sentencia.setString(2, incidencia.getCausaEliminacion());
+					sentencia.setString(3, incidencia.getCodigo());
 					sentencia.executeUpdate();			
 				} catch (SQLException e) {
 					e.getMessage();
@@ -328,13 +326,12 @@ public class IncidenciaDAO {
 			Connection con = conectar();
 			String sql = "Select * FROM pendientes";
 			Incidencia nueva = new Incidencia();
-			List<Incidencia> lista = new ArrayList<Incidencia>();
+			List<Incidencia> lista = new ArrayList<>();
 			try(PreparedStatement sentencia = con.prepareStatement(sql);
 					ResultSet rs = sentencia.executeQuery(sql)) {
 				while (rs.next()) {
 					String codigo = rs.getString("Codigo");
 					nueva.setCodigo(codigo);
-					String estado = rs.getString("Estado");
 					nueva.setEstado(Estado.PENDIENTE);
 					int puesto = rs.getInt("Puesto");
 					nueva.setNumPuesto(puesto);
@@ -362,13 +359,12 @@ public class IncidenciaDAO {
 			Connection con = conectar();
 			String sql = "Select * FROM resueltas";
 			Incidencia nueva = new Incidencia();
-			List<Incidencia> lista = new ArrayList<Incidencia>();
+			List<Incidencia> lista = new ArrayList<>();
 			try(PreparedStatement sentencia = con.prepareStatement(sql);
 					ResultSet rs = sentencia.executeQuery(sql)) {
 				while (rs.next()) {
 					String codigo = rs.getString("Codigo");
 					nueva.setCodigo(codigo);
-					String estado = rs.getString("Estado");
 					nueva.setEstado(Estado.RESUELTA);
 					int puesto = rs.getInt("Puesto");
 					nueva.setNumPuesto(puesto);
@@ -401,13 +397,12 @@ public class IncidenciaDAO {
 			Connection con = conectar();
 			String sql = "Select * FROM eliminadas";
 			Incidencia nueva = new Incidencia();
-			List<Incidencia> lista = new ArrayList<Incidencia>();
+			List<Incidencia> lista = new ArrayList<>();
 			try(PreparedStatement sentencia = con.prepareStatement(sql);
 					ResultSet rs = sentencia.executeQuery(sql)) {
 				while (rs.next()) {
 					String codigo = rs.getString("Codigo");
 					nueva.setCodigo(codigo);
-					String estado = rs.getString("Estado");
 					nueva.setEstado(Estado.ELIMINADA);
 					int puesto = rs.getInt("Puesto");
 					nueva.setNumPuesto(puesto);

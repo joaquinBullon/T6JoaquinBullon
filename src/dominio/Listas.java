@@ -3,6 +3,7 @@ package dominio;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
@@ -202,8 +203,11 @@ public class Listas implements Serializable{
 	 * @param causaEliminacion {@link String} - causa de eliminacion de la incidencia.
 	 */
 	public Incidencia eliminarIncidencia(int numeroIncidencia, String causaEliminacion) {
+		final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		String tempFecha = formatoFecha.format(LocalDate.now());
+		
 		listaPendientes.get(numeroIncidencia).setEstado(Estado.ELIMINADA);
-		listaPendientes.get(numeroIncidencia).setFechaEliminacion(LocalDate.now());
+		listaPendientes.get(numeroIncidencia).setFechaEliminacion(LocalDate.parse(tempFecha,formatoFecha));
 		listaPendientes.get(numeroIncidencia).setFechaEliminacionTexto(LocalDate.now().toString());
 		listaPendientes.get(numeroIncidencia).setCausaEliminacion(causaEliminacion);
 		
@@ -224,8 +228,11 @@ public class Listas implements Serializable{
 	 * @param resolucion {@link String} - resolucion de la incidencia.
 	 */
 	public Incidencia resolverIncidencia(int numeroIncidencia, String resolucion) {
+		final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		String tempFecha = formatoFecha.format(LocalDate.now());
+		
 		listaPendientes.get(numeroIncidencia).setEstado(Estado.RESUELTA);
-		listaPendientes.get(numeroIncidencia).setFechaResolucion(LocalDate.now());
+		listaPendientes.get(numeroIncidencia).setFechaResolucion(LocalDate.parse(tempFecha,formatoFecha));
 		listaPendientes.get(numeroIncidencia).setFechaResolucionTexto(LocalDate.now().toString());
 		listaPendientes.get(numeroIncidencia).setResolucion(resolucion);
 		
